@@ -2,11 +2,6 @@ $(document).ready(function(){
     $('#67').on('submit',function(e){
         e.preventDefault();
         err = 0;
-        if ($('#fullname').val().trim() === '' || $('#password').val().trim() != $('#confirm_password').val().trim()){
-            err = 1;
-        }else{
-            err = 0;
-        }
         if (err == 0){
             $.ajax({
                 url: '/user_register',
@@ -20,4 +15,22 @@ $(document).ready(function(){
             })
         }
     })
+
+
+   $('#lg').on('submit',function(e){
+        e.preventDefault();
+        err = 0;
+        if (err == 0){
+            $.ajax({
+                url: '/user_login',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    uname: $('#username').val(),
+                    password: $('#password').val()
+                })
+            })
+        }
+    })
+
 })

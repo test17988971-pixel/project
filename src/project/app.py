@@ -22,7 +22,26 @@ def user_register():
     cnx.commit()
     cnx.close()
 
-    return 'vse ok'
+    return {} 
+@app.route('/user_login', methods=['POST'])
+def user_login():
+    req = request.get_json()
+    cnx = mysql.connector.connect(
+        host="185.114.247.43",
+        port=3306,
+        database="sch688_vvedenie",
+        user="sch688_vvedenie",
+        password="Qwerty123")
+
+    uname = req['username']
+    password = req['password']
+    date = (uname, password)
+    cur = cnx.cursor()
+    rows = cur.execute('SELECT * FROM users WHERE email=%s AND password_hash=%s', date)
+    cnx.commit()
+    cnx.close()
+
+    return {}
 
 # # Fetch one result
 # row = cur.fetchone()
