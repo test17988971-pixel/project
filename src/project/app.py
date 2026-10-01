@@ -40,15 +40,14 @@ def user_login():
     uname = req['uname']
     password_hash = req['p_hash']
     date = (uname, password_hash)
-    print(date)
     cur = cnx.cursor()
     try:
         rows = cur.execute('SELECT * FROM users WHERE uname=%s AND password=%s', date)
     except:
         return {"result":False}
+    cur
     cnx.commit()
     cnx.close()
-
     return {"result":True}
 
 # # Fetch one result
@@ -65,4 +64,8 @@ def registration():
 @app.route("/login")
 def login():
     return render_template('login.html')
+
+@app.route("/lk")
+def to_lk():
+    return render_template('lk.html')
 app.run()
