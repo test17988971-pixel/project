@@ -39,7 +39,7 @@ def user_login():
         password="Qwerty123")
     uname = req['uname']
     password_hash = req['p_hash']
-    date = (uname, password)
+    date = (uname, password_hash)
     print(date)
     cur = cnx.cursor()
     try:
