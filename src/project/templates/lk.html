@@ -245,20 +245,20 @@
         <!-- Имя пользователя (значение из кода) -->
         <div class="form-group">
             <label>Имя пользователя</label>
-            <div class="static-value">{{ username }}</div>
+            <div class="static-value">{{ user.username }}</div>
         </div>
 
         <!-- Email (значение из кода) -->
         <div class="form-group">
             <label>Email</label>
-            <div class="static-value">{{ email }}</div>
+            <div class="static-value">Пока нет</div>
         </div>
 
         <!-- Баланс (значение из кода) -->
         <div class="balance-card">
             <div class="balance-info">
                 <span class="balance-label">Текущий баланс</span>
-                <span class="balance-value">{{ balance }} <span class="currency">₽</span></span>
+                <span class="balance-value">{{ user.balance }}<span class="currency">₽</span></span>
             </div>
             <div class="balance-icon">
                 <svg viewBox="0 0 24 24">

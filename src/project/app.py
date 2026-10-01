@@ -2,7 +2,10 @@ from flask import Flask, render_template, request,jsonify
 import mysql.connector
 
 app = Flask(__name__)  
+ot=[]
 
+def cigan_data():
+    rows = cur.execute('SELECT * FROM users WHERE uname=%s AND password=%s', date)
 @app.route('/user_register', methods=['POST'])
 def user_register():
     req = request.get_json()
@@ -17,7 +20,7 @@ def user_register():
     login = req['email']
     password = req['password']
     date = (name, login, password)
-    password=hash(password)
+    #password=hash(password)
     cur = cnx.cursor()
     try:
         rows = cur.execute('INSERT INTO `users`(`username`, `email`, `password_hash`) VALUES (%s, %s, %s)', date)
@@ -45,7 +48,8 @@ def user_login():
         rows = cur.execute('SELECT * FROM users WHERE uname=%s AND password=%s', date)
     except:
         return {"result":False}
-    cur
+    global ot
+    ot=cur.fetchone()
     cnx.commit()
     cnx.close()
     return {"result":True}
@@ -67,5 +71,11 @@ def login():
 
 @app.route("/lk")
 def to_lk():
-    return render_template('lk.html')
+    # данные пользователя (например, из БД)
+    udt=cigan_data()
+    udt = {
+        'username': 'SteveCocks',
+        'balance': 0,
+    }
+    return render_template('lk.html', user=udt)
 app.run()
