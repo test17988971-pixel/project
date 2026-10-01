@@ -17,12 +17,17 @@ def user_register():
     login = req['email']
     password = req['password']
     date = (name, login, password)
+    password=hash(password)
     cur = cnx.cursor()
-    rows = cur.execute('INSERT INTO `users`(`username`, `email`, `password_hash`) VALUES (%s, %s, %s)', date)
+    try:
+        rows = cur.execute('INSERT INTO `users`(`username`, `email`, `password_hash`) VALUES (%s, %s, %s)', date)
+    except:
+        return {"result":False}
     cnx.commit()
     cnx.close()
+    return {"result":True, "id":cur.lastrowid}
 
-    return {} 
+
 @app.route('/user_login', methods=['POST'])
 def user_login():
     req = request.get_json()
@@ -32,16 +37,19 @@ def user_login():
         database="sch688_vvedenie",
         user="sch688_vvedenie",
         password="Qwerty123")
-
-    uname = req['username']
-    password = req['password']
+    uname = req['uname']
+    password_hash = req['p_hash']
     date = (uname, password)
+    print(date)
     cur = cnx.cursor()
-    rows = cur.execute('SELECT * FROM users WHERE email=%s AND password_hash=%s', date)
+    try:
+        rows = cur.execute('SELECT * FROM users WHERE uname=%s AND password=%s', date)
+    except:
+        return {"result":False}
     cnx.commit()
     cnx.close()
 
-    return {}
+    return {"result":True}
 
 # # Fetch one result
 # row = cur.fetchone()

@@ -27,7 +27,7 @@ $(document).ready(function(){
                 contentType: 'application/json',
                 data: JSON.stringify({
                     uname: $('#username').val(),
-                    password: $('#password').val()
+                    p_hash: $('#password').val()
                 })
             })
         }
