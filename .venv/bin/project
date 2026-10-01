@@ -1,6 +1,4 @@
-#!/bin/sh
-'''exec' '/home/borovskiins/Рабочий стол/project/.venv/bin/python' "$0" "$@"
-' '''
+#!/home/guest/Документы/project/.venv/bin/python
 # -*- coding: utf-8 -*-
 import sys
 from project import main
