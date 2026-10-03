@@ -207,7 +207,7 @@
             <p>Введите свои данные для авторизации</p>
         </div>
 
-        <form action="/user_login" method="post" id="lg">
+        <form id="lg">
             <div class="form-group">
                 <label for="username">Логин или Email</label>
                 <div class="input-wrapper">
@@ -234,15 +234,15 @@
                 <a href="#" class="forgot-link">Забыли пароль?</a>
             </div>
 
-            <div class="switch-link">
-            <a href="/lk">Войти</a>
-        </div>
+            <!-- ИСПРАВЛЕНИЕ: Настоящая кнопка отправки формы -->
+            <button type="submit">Войти</button>
         </form>
 
         <div class="switch-link">
             Ещё нет аккаунта? <a href="/">Зарегистрироваться</a>
         </div>
     </div>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.js" integrity="sha512-+k1pnlgt4F1H8L7t3z95o3/KO+o78INEcXTbnoJQ/F2VqDVhWoaiVml/OEHv9HsVgxUaVW+IbiZPUJQfF/YxZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="../static/script.js"></script>
 </body>
