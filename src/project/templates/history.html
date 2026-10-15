@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История операций</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #0f172a;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            color: #334155;
+            padding: 40px 20px;
+        }
+
+        .cabinet-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 40px 32px;
+            border-radius: 20px;
+            box-shadow:
+                0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                0 8px 10px -6px rgba(0, 0, 0, 0.05),
+                0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+            width: 100%;
+            max-width: 520px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cabinet-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .cabinet-header .avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .cabinet-header .avatar svg {
+            width: 28px;
+            height: 28px;
+            fill: none;
+            stroke: #ffffff;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .cabinet-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .cabinet-header p {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .summary-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            padding: 16px 18px;
+            border-radius: 14px;
+            border: 1.5px solid;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .summary-card.income {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.08) 100%);
+            border-color: rgba(16, 185, 129, 0.25);
+        }
+
+        .summary-card.outcome {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.08) 100%);
+            border-color: rgba(239, 68, 68, 0.22);
+        }
+
+        .summary-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .summary-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .summary-card.income .summary-value { color: #059669; }
+        .summary-card.outcome .summary-value { color: #dc2626; }
+
+        .summary-value .currency {
+            font-size: 13px;
+            font-weight: 600;
+            margin-left: 3px;
+            opacity: 0.8;
+        }
+
+        .history-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 12px;
+            padding-left: 4px;
+        }
+
+        .history-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 4px;
+            margin-bottom: 24px;
+        }
+
+        .history-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            background-color: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .history-item:hover {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .history-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .history-icon svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .history-item.income .history-icon {
+            background: rgba(16, 185, 129, 0.12);
+        }
+        .history-item.income .history-icon svg { stroke: #059669; }
+
+        .history-item.outcome .history-icon {
+            background: rgba(239, 68, 68, 0.12);
+        }
+        .history-item.outcome .history-icon svg { stroke: #dc2626; }
+
+        .history-info {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .history-desc {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-date {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .history-amount {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            white-space: nowrap;
+        }
+
+        .history-item.income .history-amount { color: #059669; }
+        .history-item.outcome .history-amount { color: #dc2626; }
+
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            background-color: #f8fafc;
+            border: 1.5px dashed #e2e8f0;
+            border-radius: 12px;
+        }
+
+        .empty-state svg {
+            width: 40px;
+            height: 40px;
+            fill: none;
+            stroke: #cbd5e1;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            margin-bottom: 12px;
+        }
+
+        .empty-state p {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            color: #334155;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(0);
+        }
+
+        .switch-link {
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid #f1f5f9;
+            text-align: center;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .switch-link a {
+            color: #6366f1;
+            font-weight: 600;
+            text-decoration: none;
+            margin-left: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .switch-link a:hover {
+            color: #4f46e5;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cabinet-card">
+        <div class="cabinet-header">
+            <div class="avatar">
+                <svg viewBox="0 0 24 24">
+                    <path d="M3 3v5h5"></path>
+                    <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path>
+                    <path d="M12 7v5l4 2"></path>
+                </svg>
+            </div>
+            <h2>История операций</h2>
+            <p>Все пополнения и списания по вашему счёту</p>
+        </div>
+
+        <div class="summary-row">
+            <div class="summary-card income">
+                <span class="summary-label">Баланс</span>
+                <span class="summary-value">{{ user.balance }}<span class="currency">₽</span></span>
+            </div>
+            <div class="summary-card outcome">
+                <span class="summary-label">Списано</span>
+                <span class="summary-value">{{ user.sum_sp }}<span class="currency">₽</span></span>
+            </div>
+        </div>
+
+        <div class="history-title">Операции</div>
+
+        {% if user.transactions %}
+            <ul class="history-list">
+                {% for tx in user.transactions %}
+                    <li class="history-item {{ 'income' if tx.amount > 0 else 'outcome' }}">
+                        <div class="history-icon">
+                            {% if tx.amount > 0 %}
+                                <svg viewBox="0 0 24 24">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                            {% else %}
+                                <svg viewBox="0 0 24 24">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                            {% endif %}
+                        </div>
+                        <div class="history-info">
+                            <span class="history-desc">{{ tx.description }}</span>
+                            <span class="history-date">{{ tx.created_at }}</span>
+                        </div>
+                        <span class="history-amount">
+                            {{ '+' if tx.amount > 0 else '−' }}{{ tx.amount|abs }} ₽
+                        </span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="9" y1="13" x2="15" y2="13"></line>
+                    <line x1="9" y1="17" x2="15" y2="17"></line>
+                </svg>
+                <p>Операций пока нет</p>
+            </div>
+        {% endif %}
+
+        <a href="/lk" class="btn btn-secondary">
+            <svg viewBox="0 0 24 24">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Назад в личный кабинет
+        </a>
+
+        <div class="switch-link">
+            <a href="/logout">Выйти из аккаунта</a>
+        </div>
+    </div>
+
+</body>
+</html>
