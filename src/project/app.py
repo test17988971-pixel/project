@@ -1,9 +1,22 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import mysql.connector
+from llama_cpp import Llama
 from werkzeug.security import generate_password_hash, check_password_hash
+
+REPO_ID = "bartowski/Qwen2.5-0.5B-Instruct-GGUF"
+FILENAME = "Qwen2.5-0.5B-Instruct-Q4_K_M.ggu"
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key_for_sessions'
+
+print(f"Загрузка модели {FILENAME} из {REPO_ID}...")
+llm = Llama.from_pretrained(
+    repo_id=REPO_ID,
+    filename=FILENAME,
+    n_ctx=2048,
+    verbose=False
+)
+print("Модель успешно загружена.")
 
 def get_db_connection():
     return mysql.connector.connect(
@@ -42,6 +55,34 @@ def user_register():
     except Exception as e:
         print("Ошибка регистрации:", e)
         return jsonify({"result": False})
+
+
+
+
+@app.route('/api/chat', methods=['POST'])
+def api_chat():
+    if 'user_id' not in session:
+        return jsonify({'error': 'не авторизован'}), 401
+    
+    req = request.get_json(silent=True) or {}
+    message = (req.get('message') or '').strip()
+    if not message:
+        return jsonify({'error': 'пустое сообщение'}), 400
+
+    prompt = f"<|im_start|>system\nТы полезный ассистент. Отвечай кратко и по-русски.<|im_end|>\n<|im_start|>user\n{message}<|im_end|>\n<|im_start|>assistant\n"
+    
+    output = llm(
+        prompt,
+        max_tokens=150,
+        temperature=0.7,
+        stop=["<|im_end|>"]
+    )
+    reply = output['choices'][0]['text'].strip()
+    return jsonify({'reply': reply})
+
+
+
+
 
 @app.route('/user_login', methods=['POST'])
 def user_login():
