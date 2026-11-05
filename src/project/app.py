@@ -4,7 +4,7 @@ from llama_cpp import Llama
 from werkzeug.security import generate_password_hash, check_password_hash
 
 REPO_ID = "bartowski/Qwen2.5-0.5B-Instruct-GGUF"
-FILENAME = "Qwen2.5-0.5B-Instruct-Q4_K_M.ggu"
+FILENAME = "Qwen2.5-0.5B-Instruct-Q4_K_M.gguf"
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key_for_sessions'
