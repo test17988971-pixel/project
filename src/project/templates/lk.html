@@ -475,7 +475,7 @@
 
         <div class="form-group">
             <label>Email</label>
-            <div class="static-value">Пока нет</div>
+            <div class="static-value">{{ user.email if user.email else 'Не указан' }}</div>
         </div>
 
         <div class="balance-card">

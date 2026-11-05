@@ -49,6 +49,7 @@ def user_register():
 
         session['user_id'] = user_id
         session['username'] = name
+        session['email'] = email
         session['balance'] = 100
         
         return jsonify({"result": True})
@@ -64,10 +65,30 @@ def api_chat():
     if 'user_id' not in session:
         return jsonify({'error': 'не авторизован'}), 401
     
+    current_balance = session.get('balance', 0)
+    if current_balance < 3:
+        return jsonify({'error': 'Недостаточно средств на балансе', 'new_balance': current_balance}), 400
+    
     req = request.get_json(silent=True) or {}
     message = (req.get('message') or '').strip()
     if not message:
         return jsonify({'error': 'пустое сообщение'}), 400
+
+    try:
+        cnx = get_db_connection()
+        cur = cnx.cursor()
+        
+        new_balance = current_balance - 3
+        cur.execute('UPDATE users SET balance=%s WHERE id=%s', (new_balance, session['user_id']))
+        cur.execute('INSERT INTO `transactions`(`user_id`, `type`, `cost`, `description`) VALUES (%s, %s, %s, %s)', 
+                   (session['user_id'], 'списание', 3, 'Сообщение в чат с ИИ'))
+        cnx.commit()
+        cnx.close()
+        
+        session['balance'] = new_balance
+    except Exception as e:
+        print("Ошибка списания баланса:", e)
+        return jsonify({'error': 'Ошибка базы данных'}), 500
 
     prompt = f"<|im_start|>system\nТы полезный ассистент. Отвечай кратко и по-русски.<|im_end|>\n<|im_start|>user\n{message}<|im_end|>\n<|im_start|>assistant\n"
     
@@ -78,7 +99,7 @@ def api_chat():
         stop=["<|im_end|>"]
     )
     reply = output['choices'][0]['text'].strip()
-    return jsonify({'reply': reply})
+    return jsonify({'reply': reply, 'new_balance': new_balance})
 
 
 
@@ -100,6 +121,7 @@ def user_login():
         if user and check_password_hash(user['password_hash'], password):
             session['user_id'] = user['id']
             session['username'] = user['username']
+            session['email'] = user.get('email', '')
             session['balance'] = user.get('balance', 0)
             return jsonify({"result": True})
         else:
@@ -132,6 +154,7 @@ def to_lk():
         
     udt = {
         'username': session.get('username'),
+        'email': session.get('email', ''),
         'balance': session.get('balance'),
     }
     return render_template('lk.html', user=udt)
